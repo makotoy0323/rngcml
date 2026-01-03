@@ -1,0 +1,847 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>レディース買取目安（通常）</title>
+
+<style>
+:root{
+  --bg:#f6fbf8;
+  --panel:#ffffff;
+  --line:#d7e7de;
+  --text:#1f2d27;
+  --muted:#50645b;
+
+  --green:#2f8a63;
+  --green2:#1f6f4e;
+  --active:#e6f7ef;
+
+  --suggest-bg:#f0fbf5;
+  --warn-bg:#fbf8e9;
+  --warn-bd:#e6d48c;
+
+  --radius:16px;
+  --shadow:0 10px 24px rgba(25, 40, 32, .10);
+  --shadow-soft:0 6px 14px rgba(25, 40, 32, .08);
+
+  --fz-base:16px;
+  --fz-small:14px;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:12px;
+  background:var(--bg);
+  font-family:system-ui,-apple-system,"Segoe UI","Hiragino Sans","Noto Sans JP",sans-serif;
+  color:var(--text);
+  font-size:var(--fz-base);
+  line-height:1.55;
+}
+
+.container{max-width:1600px;margin:0 auto}
+.shell{
+  height:calc(100vh - 24px);
+  display:grid;
+  grid-template-columns:1.1fr .9fr;
+  gap:12px;
+}
+@media(max-width:1100px){
+  .shell{grid-template-columns:1fr;height:auto}
+}
+
+.panel{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  overflow:hidden;
+  min-height:0;
+}
+.panelInner{
+  padding:12px;
+  height:100%;
+  min-height:0;
+}
+
+.sectionTitle{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:10px 12px;
+  border-radius:14px;
+  background:linear-gradient(180deg, rgba(47,138,99,.14), rgba(47,138,99,.08));
+  border:1px solid rgba(47,138,99,.18);
+  color:var(--green2);
+  font-weight:1000;
+  letter-spacing:.02em;
+  margin:0 0 10px;
+}
+.sectionTitle small{
+  font-size:12px;
+  color:rgba(31,45,39,.70);
+  font-weight:900;
+}
+
+label{font-weight:1000;display:block;margin-top:8px}
+input[type=text],select{
+  width:100%;
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid #b9c9c0;
+  font-size:16px;
+  background:#fff;
+}
+input[type=text]:focus,select:focus{
+  outline:none;
+  border-color:var(--green);
+  box-shadow:0 0 0 4px rgba(47,138,99,.14);
+}
+
+/* ===== 左：ブランド（内部スクロール） ===== */
+.brandPane{display:flex;flex-direction:column;gap:8px;min-height:0;height:100%}
+.brandScroll{flex:1 1 auto;min-height:0;overflow:auto;padding-right:6px}
+
+.brandGrid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+  gap:6px;
+}
+.brandItem{
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:8px 10px;
+  display:flex;
+  gap:8px;
+  align-items:center;
+  background:#fff;
+  transition:transform .06s ease, box-shadow .12s ease;
+}
+.brandItem:hover{transform:translateY(-1px);box-shadow:var(--shadow-soft)}
+.brandItem input{width:18px;height:18px;margin:0}
+.brandNameWrap{flex:1 1 auto;overflow-x:auto;white-space:nowrap}
+.brandName{font-weight:1000;white-space:nowrap}
+.hidden{display:none!important}
+
+/* ===== 候補（入力中だけ） ===== */
+.suggestBox{
+  border:1px solid var(--line);
+  background:var(--suggest-bg);
+  border-radius:14px;
+  padding:10px;
+}
+.suggestTitle{font-weight:1000;color:var(--green2);margin-bottom:8px}
+.suggestGrid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+  gap:8px;
+}
+.suggestItem{
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:8px 10px;
+  background:#fff;
+  display:flex;
+  gap:10px;
+  cursor:pointer;
+  transition:transform .06s ease, box-shadow .12s ease;
+}
+.suggestItem:hover{transform:translateY(-1px);box-shadow:var(--shadow-soft)}
+.suggestBadge{
+  font-size:12px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  padding:3px 10px;
+  background:#fff;
+  white-space:nowrap;
+}
+.suggestBadge.high{background:#ffeaea;border-color:#ff4d4f;color:#c40000}
+.suggestBadge.low{background:#eef4ff;border-color:#4d7cff;color:#1f4cff}
+
+/* ===== 右：入力＋結果 ===== */
+.rightPane{display:flex;flex-direction:column;gap:10px;min-height:0;height:100%}
+.rightHeader{flex:0 0 auto}
+.rightMain{flex:1 1 auto;min-height:0;overflow:auto;padding-right:6px}
+
+.estimateBox{
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:linear-gradient(180deg, rgba(246,251,248,.96), rgba(246,251,248,1));
+  padding:10px;
+}
+.estimateBox .sectionTitle{margin:0 0 8px}
+#buyInline.buyInline{
+  font-size:22px;
+  line-height:1.15;
+  padding:8px 10px;
+  border-radius:12px;
+  border:2px solid rgba(47,138,99,.22);
+  background:linear-gradient(180deg, rgba(255,255,255,.95) 0%, rgba(255,228,143,.55) 100%);
+}
+.summary{
+  margin-top:8px;
+  font-size:14px;
+  font-weight:900;
+  color:rgba(31,45,39,.85);
+  line-height:1.4;
+}
+.warn{
+  margin-top:6px;
+  background:var(--warn-bg);
+  border:1px solid var(--warn-bd);
+  border-radius:10px;
+  padding:8px 10px;
+  font-size:var(--fz-small);
+}
+
+/* セグメント */
+.seg5,.seg2{display:grid;gap:6px}
+.seg5{grid-template-columns:repeat(5,1fr)}
+.seg2{grid-template-columns:repeat(2,1fr)}
+.segBtn{
+  position:relative;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:8px 0;
+  text-align:center;
+  font-weight:1000;
+  cursor:pointer;
+  user-select:none;
+  background:#fff;
+  transition:transform .06s ease, box-shadow .12s ease;
+}
+.segBtn:hover{transform:translateY(-1px);box-shadow:var(--shadow-soft)}
+.segBtn input{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px}
+.segBtn:has(input:checked){
+  background:var(--active);
+  border-color:var(--green);
+}
+
+/* 売価 */
+.sellGrid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(80px,1fr));
+  gap:6px;
+}
+.sellBtn{
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:8px 0;
+  text-align:center;
+  font-weight:1000;
+  cursor:pointer;
+  user-select:none;
+  background:#fff;
+  transition:transform .06s ease, box-shadow .12s ease;
+}
+.sellBtn:hover{transform:translateY(-1px);box-shadow:var(--shadow-soft)}
+.sellBtn.active{
+  background:var(--active);
+  border-color:var(--green);
+}
+
+/* v15/v17/v18 (維持) */
+.brandPane{padding:10px;}
+.brandPane .sectionTitle{padding:8px 10px;border-radius:12px;}
+.brandPane label{margin-top:6px;}
+.brandPane input[type=text]{padding:9px 10px;border-radius:12px;}
+.brandScroll{padding-right:4px;}
+.brandGrid{gap:5px;}
+.brandItem{padding:6px 8px;border-radius:12px;}
+
+@media (min-width: 1100px){
+  body{ margin:8px; }
+  .container{ max-width: 1920px; }
+  .shell{ grid-template-columns: 1.25fr .75fr; }
+  .brandGrid{
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .brandItem{
+    padding: 12px 10px;
+    min-height: 54px;
+  }
+  .brandItem input{
+    width: 20px;
+    height: 20px;
+  }
+  .brandName{
+    font-size: 15px;
+  }
+  .brandNameWrap{
+    overflow-x: auto;
+    white-space: nowrap;
+    scrollbar-width: none;
+  }
+  .brandNameWrap::-webkit-scrollbar{ height:0; }
+}
+
+@media (min-width: 1500px){
+  .shell{ gap:10px; }
+}
+
+/* v18: 右は視認性UP */
+.rightPane .segBtn{
+  padding:12px 0;
+  border-radius:14px;
+}
+.rightPane .segBtn span{font-size:18px}
+.rightPane .seg5{gap:10px}
+.rightPane .seg2{gap:10px}
+
+.rightPane .sellGrid{
+  grid-template-columns:repeat(3, minmax(120px, 1fr));
+  gap:10px;
+}
+.rightPane .sellBtn{
+  padding:12px 0;
+  border-radius:14px;
+  font-size:16px;
+}
+.rightPane select{
+  height:46px;
+  font-size:16px;
+}
+</style>
+
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#2f8a63">
+<link rel="icon" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+</head>
+
+<body>
+<div class="container">
+  <div class="shell">
+
+    <!-- 左：ブランド -->
+    <section class="panel">
+      <div class="panelInner brandPane">
+        <div class="sectionTitle"><span>ブランド（わからない時は入力）</span><small>入力中のみ候補</small></div>
+        <input id="brandQuery" type="text" placeholder="例：M / 23 / zara / まーが..." aria-label="ブランド">
+
+        <div id="suggestBox" class="suggestBox hidden">
+          <div class="suggestTitle">候補</div>
+          <div id="suggestGrid" class="suggestGrid"></div>
+        </div>
+
+        <div class="brandScroll">
+          <div class="brandGrid" id="gridGeneral"></div>
+          <div class="brandGrid" id="gridMiddle"></div>
+          <div class="brandGrid" id="gridHigh"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 右：入力＋結果 -->
+    <section class="panel">
+      <div class="panelInner rightPane">
+        <div class="rightHeader">
+          <div class="estimateBox">
+            <div class="sectionTitle">買取目安</div>
+            <div id="buyInline" class="buyInline">—</div>
+            <div id="summary" class="summary"></div>
+          </div>
+        </div>
+
+        <div class="rightMain">
+          <div class="sectionTitle" style="margin-bottom:8px"><span>入力</span><small>状態→アイテム→売価</small></div>
+
+          <label style="margin-top:0">状態ランク</label>
+          <div class="seg5" id="segStatus">
+            <label class="segBtn"><input type="radio" name="status" value="S"><span>S</span></label>
+            <label class="segBtn"><input type="radio" name="status" value="A"><span>A</span></label>
+            <label class="segBtn"><input type="radio" name="status" value="B" checked><span>B</span></label>
+            <label class="segBtn"><input type="radio" name="status" value="C"><span>C</span></label>
+            <label class="segBtn"><input type="radio" name="status" value="D"><span>D</span></label>
+          </div>
+
+          <label>状態が悪いところはある？</label>
+          <div class="seg2" id="segDamage">
+            <label class="segBtn"><input type="radio" name="damage" value="no" checked><span>いいえ</span></label>
+            <label class="segBtn"><input type="radio" name="damage" value="yes"><span>はい</span></label>
+          </div>
+
+          <label>アイテム</label>
+          <select id="item"></select>
+
+          <label>売価（参考）</label>
+          <div class="sellGrid" id="sellGrid"></div>
+          <input type="hidden" id="sell">
+
+          <div id="warn"></div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<script>
+function normalize(s){
+  return (s||"")
+    .replace(/[Ａ-Ｚａ-ｚ０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0))
+    .toLowerCase()
+    .replace(/[ァ-ン]/g,ch=>String.fromCharCode(ch.charCodeAt(0)-0x60))
+    .replace(/[\\s・._\\-\\/]/g,"");
+}
+
+const BRAND_VISIBLE = {
+  generalLabel: "ノーブランド（ブランド不明/なし）",
+  middle: [
+    "22 OCTOBRE","23区","Amina","Anisha","AS KNOW AS","axes femme","AZUL BY MOUSSY","BEAMS","CAYHANE","CUBE SUGAR",
+    "DoCLASSE","Eddie Bauer","ehka sopo","EMODA","FRAY I.D","fredy emue","gelato pique","IENA","Mila Owen","moussy",
+    "niko and ...","NOLLY'S","OPAQUE.CLIP","Ralph Lauren","Ray BEAMS","rienda","RODEO CROWNS","SHIPS","SLY","SM2",
+    "snidel","studio CLIP","Te chichi","Theory","TITICACA","TOMORROW LAND","Yul","ZARA","組曲","三陽商会","自由区","無印良品","MURUA"
+  ],
+  high: ["BURBERRY","ISSEY MIYAKE","SPECCHIO","伊太利屋","詩仙堂"],
+  aliases: {
+    "SM2": ["Samansa Mos2","サマンサモスモス"],
+    "BURBERRY": ["Burberrys","バーバリー"],
+    "ISSEY MIYAKE": ["イッセイミヤケ"],
+    "gelato pique": ["ジェラートピケ","ジェラピケ"],
+    "moussy": ["マウジー"],
+    "snidel": ["スナイデル"],
+    "ZARA": ["ザラ","ZARA BASIC"],
+    "TOMORROW LAND": ["TOMORROWLAND","トゥモローランド"],
+    "Theory": ["セオリー"],
+    "IENA": ["イエナ"]
+  }
+};
+
+const UNKNOWN_SUSPECT = [
+  {label:"MARGARET HOWELL", badge:"高めかも？", tier:"high", note:"相場が高い可能性あり", aliases:["マーガレットハウエル","mhl","MHL"]},
+  {label:"YAECA", badge:"高めかも？", tier:"high", note:"相場が高い可能性あり", aliases:["ヤエカ"]},
+  {label:"AURALEE", badge:"高めかも？", tier:"high", note:"相場が高い可能性あり", aliases:["オーラリー"]},
+  {label:"COMOLI", badge:"高めかも？", tier:"high", note:"相場が高い可能性あり", aliases:["コモリ"]},
+  {label:"Graphpaper", badge:"高めかも？", tier:"high", note:"相場が高い可能性あり", aliases:["グラフペーパー"]},
+  {label:"HYKE", badge:"高めかも？", tier:"high", note:"相場が高い可能性あり", aliases:["ハイク"]},
+  {label:"Scye", badge:"高めかも？", tier:"high", note:"相場が高い可能性あり", aliases:["サイ","Scye Basics"]},
+  {label:"beautiful people", badge:"高めかも？", tier:"high", note:"相場が高い可能性あり", aliases:["ビューティフルピープル"]},
+  {label:"TOGA", badge:"高めかも？", tier:"high", note:"相場が高い可能性あり", aliases:["トーガ","TOGA ARCHIVES"]},
+  {label:"kolor", badge:"高めかも？", tier:"high", note:"相場が高い可能性あり", aliases:["カラー"]},
+  {label:"sacai", badge:"高めかも？", tier:"high", note:"相場が高い可能性あり", aliases:["サカイ"]},
+  {label:"ENFÖLD", badge:"高めかも？", tier:"high", note:"相場が高い可能性あり", aliases:["エンフォルド","ENFOLD"]},
+  {label:"MM6", badge:"高めかも？", tier:"high", note:"相場が高い可能性あり", aliases:["MM6 Maison Margiela","エムエムシックス"]},
+  {label:"DRIES VAN NOTEN", badge:"高めかも？", tier:"high", note:"相場が高い可能性あり", aliases:["ドリス","ドリスヴァンノッテン"]},
+  {label:"ACNE STUDIOS", badge:"高めかも？", tier:"high", note:"相場が高い可能性あり", aliases:["ACNE","アクネ","アクネストゥディオズ"]},
+  {label:"Maison Margiela", badge:"高めかも？", tier:"high", note:"相場が高い可能性あり", aliases:["マルジェラ","メゾンマルジェラ"]},
+
+  {label:"earth music&ecology Natural Label", badge:"安めかも？", tier:"general", note:"安価帯の可能性あり", aliases:["earth Natural","earth NL"]},
+  {label:"LOWRYS FARM SELECT", badge:"安めかも？", tier:"general", note:"安価帯の可能性あり", aliases:["ローリーズセレクト"]},
+  {label:"GLOBAL WORK Smile Seed Store", badge:"安めかも？", tier:"general", note:"安価帯の可能性あり", aliases:["GLOBAL WORK SSS"]},
+  {label:"MUJI Labo", badge:"安めかも？", tier:"general", note:"安価帯の可能性あり", aliases:["無印良品 LABO","MUJI LABO"]},
+  {label:"UNIQLO U", badge:"安めかも？", tier:"general", note:"安価帯の可能性あり", aliases:["ユニクロU"]},
+  {label:"UNIQLO AND LEMAIRE", badge:"安めかも？", tier:"general", note:"安価帯の可能性あり", aliases:["UNIQLO × LEMAIRE"]},
+  {label:"GU STANDARD", badge:"安めかも？", tier:"general", note:"安価帯の可能性あり", aliases:["GU スタンダード"]},
+  {label:"ZARA TRF", badge:"安めかも？", tier:"general", note:"安価帯の可能性あり", aliases:["ZARA WOMAN TRF","TRF"]},
+  {label:"H&M Studio", badge:"安めかも？", tier:"general", note:"安価帯の可能性あり", aliases:["H&M STUDIO"]},
+  {label:"COMME CA ISM", badge:"安めかも？", tier:"general", note:"安価帯の可能性あり", aliases:["コムサイズム"]},
+  {label:"NATURAL BEAUTY BASIC", badge:"安めかも？", tier:"general", note:"安価帯の可能性あり", aliases:["NBB"]}
+];
+
+const TABLES = {
+  general:{name:"通常（ノーブランド）",prices:{500:"10〜20",1000:"10〜30",1500:"30〜100",2000:"100〜200",2500:"200〜500",3000:"300〜600",4000:"400〜800",5000:"500〜1000",6000:"600〜1200",7000:"700〜1400",8000:"800〜1600",9000:"900〜1800",10000:"1000〜2000"}},
+  middle:{name:"通常（プチブランド）",prices:{500:"20〜50",1000:"50〜100",1500:"50〜200",2000:"100〜300",2500:"200〜500",3000:"300〜600",4000:"400〜800",5000:"500〜1000",6000:"600〜1200",7000:"700〜1400",8000:"800〜1600",9000:"900〜1800",10000:"1000〜2000"}},
+  high:{name:"通常（ハイブランド）",prices:{2500:"500〜750",3000:"600〜900",4000:"800〜1200",5000:"1000〜1500",6000:"1400〜2100",7000:"1600〜2400",8000:"1600〜2400",9000:"1800〜2700",10000:"2000〜3000"}}
+};
+
+const BASE_B_SELL = {
+  general:{tshirt:500, shirt:500, knit:1000, pants:500, skirt:500, onepiece:1000, jacket:1500},
+  middle: {tshirt:1000,shirt:1000,knit:1500,pants:1000,skirt:1000,onepiece:1500,jacket:2000},
+  high:   {tshirt:2500,shirt:2500,knit:4000,pants:2500,skirt:2500,onepiece:4000,jacket:6000}
+};
+const RANK_SHIFT = {S:+2, A:+1, B:0, C:-1, D:-2};
+
+const ITEMS = [
+  ["tshirt","Tシャツ/カットソー"],
+  ["shirt","シャツ/ブラウス"],
+  ["knit","ニット/セーター"],
+  ["pants","パンツ"],
+  ["skirt","スカート"],
+  ["onepiece","ワンピース"],
+  ["jacket","ジャケット"]
+];
+
+const $ = (id)=>document.getElementById(id);
+const el = {
+  brandQuery:$("brandQuery"),
+  suggestBox:$("suggestBox"),
+  suggestGrid:$("suggestGrid"),
+  gridGeneral:$("gridGeneral"),
+  gridMiddle:$("gridMiddle"),
+  gridHigh:$("gridHigh"),
+  item:$("item"),
+  sellGrid:$("sellGrid"),
+  sell:$("sell"),
+  buyInline:$("buyInline"),
+  summary:$("summary"),
+  warn:$("warn")
+};
+
+const BRAND_ALL_SORTED = (()=>{
+  const list = [
+    ...BRAND_VISIBLE.middle.map(b=>({b, tier:"middle"})),
+    ...BRAND_VISIBLE.high.map(b=>({b, tier:"high"}))
+  ];
+  list.sort((x,y)=>x.b.localeCompare(y.b,'ja',{sensitivity:'base'}));
+  return list;
+})();
+
+const getStatus = ()=> document.querySelector('input[name="status"]:checked')?.value || "B";
+const hasDamage = ()=> (document.querySelector('input[name="damage"]:checked')?.value || "no")==="yes";
+
+function stepsForTier(tier){
+  return Object.keys(TABLES[tier].prices).map(Number).sort((a,b)=>a-b);
+}
+function clampIndex(i, len){ return Math.max(0, Math.min(len-1, i)); }
+
+function parseRange(t){
+  const m = String(t).match(/(\\d+)\\s*〜\\s*(\\d+)/);
+  return m ? {min:+m[1], max:+m[2]} : null;
+}
+function buyTextFromRange(tier, status, rangeText){
+  if(rangeText==="—") return "—";
+  const r = parseRange(rangeText);
+  if(tier==="high" && r && (status==="B"||status==="C"||status==="D")){
+    if(status==="B") return `${r.min}〜${r.max}円目安`;
+    if(status==="C") return `${r.min}円前後`;
+    return `～${r.min}円目安`;
+  }
+  return `${rangeText}円`;
+}
+
+let selectedTier = "general";
+let selectedBrand = "";
+let unknownBrand = "";
+
+const ALL_VISIBLE = [...new Set([...BRAND_VISIBLE.middle, ...BRAND_VISIBLE.high])];
+
+const VISIBLE_KEYS = new Map(
+  ALL_VISIBLE.map(b=>{
+    const keys = new Set([normalize(b)]);
+    (BRAND_VISIBLE.aliases?.[b]||[]).forEach(a=>keys.add(normalize(a)));
+    return [b,[...keys]];
+  })
+);
+
+const UNKNOWN_KEYS = UNKNOWN_SUSPECT.map(x=>{
+  const keys = new Set([normalize(x.label)]);
+  (x.aliases||[]).forEach(a=>keys.add(normalize(a)));
+  return {label:x.label, badge:x.badge, note:x.note, tier:x.tier, keys:[...keys]};
+});
+
+function brandRadio({tier, label, brandName}){
+  return `
+    <label class="brandItem" data-tier="${tier}" data-brand="${brandName||""}">
+      <input type="radio" name="brandPick">
+      <span class="brandNameWrap"><span class="brandName">${label}</span></span>
+    </label>
+  `;
+}
+function hideSuggest(){
+  el.suggestBox.classList.add("hidden");
+  el.suggestGrid.innerHTML = "";
+}
+function showAllBrands(){
+  document.querySelectorAll(".brandItem").forEach(w=>w.classList.remove("hidden"));
+}
+function renderBrandLists(){
+  el.gridGeneral.innerHTML = "";
+  el.gridHigh.innerHTML   = "";
+  el.gridMiddle.innerHTML = [
+    ...BRAND_ALL_SORTED.map(x=>brandRadio({tier:x.tier, label:x.b, brandName:x.b})),
+    brandRadio({tier:"general", label: BRAND_VISIBLE.generalLabel, brandName:""})
+  ].join("");
+
+  const first = document.querySelector('.brandItem input[name="brandPick"]');
+  if(first) first.checked = true;
+
+  document.querySelectorAll('input[name="brandPick"]').forEach(r=>{
+    r.addEventListener("change", ()=>{
+      const wrap = r.closest(".brandItem");
+      selectedTier = wrap.dataset.tier;
+      selectedBrand = wrap.dataset.brand || "";
+      unknownBrand = "";
+      el.brandQuery.value = "";
+      hideSuggest();
+      showAllBrands();
+      renderSellButtons();
+      autoSetSellDefault();
+      renderResult();
+    });
+  });
+}
+
+function filterBrandListByPrefix(qRaw){
+  const q = normalize(qRaw||"");
+  document.querySelectorAll(".brandItem").forEach(w=>{
+    const tier = w.dataset.tier;
+    const brand = w.dataset.brand || "";
+    if(tier==="general"){ w.classList.remove("hidden"); return; }
+    if(!q){ w.classList.remove("hidden"); return; }
+    const keys = VISIBLE_KEYS.get(brand) || [normalize(brand)];
+    w.classList.toggle("hidden", !keys.some(k=>k.startsWith(q)));
+  });
+}
+function exactVisibleBrand(input){
+  const n = normalize(input||"");
+  if(!n) return null;
+  for(const b of ALL_VISIBLE){
+    const keys = VISIBLE_KEYS.get(b) || [normalize(b)];
+    if(keys.includes(n)) return b;
+  }
+  return null;
+}
+function exactUnknownSuspect(input){
+  const n = normalize(input||"");
+  if(!n) return null;
+  for(const x of UNKNOWN_KEYS){
+    if(x.keys.includes(n)) return x;
+  }
+  return null;
+}
+function renderSuggest(qRaw, limit=12){
+  const q = normalize(qRaw||"");
+  if(!q){ hideSuggest(); return; }
+
+  const hits = [];
+  for(const b of ALL_VISIBLE){
+    const keys = VISIBLE_KEYS.get(b) || [normalize(b)];
+    if(keys.some(k=>k.startsWith(q))){
+      hits.push({type:"visible", brand:b});
+    }
+  }
+  for(const x of UNKNOWN_KEYS){
+    if(x.keys.some(k=>k.startsWith(q))){
+      hits.push({type:"unknown", brand:x.label, badge:x.badge});
+    }
+  }
+  if(!hits.length){ hideSuggest(); return; }
+
+  const shown = hits.slice(0, limit);
+  el.suggestGrid.innerHTML = shown.map(h=>{
+    if(h.type==="visible"){
+      return `
+        <div class="suggestItem" data-type="${h.type}" data-brand="${h.brand}">
+          <span class="brandNameWrap"><span class="brandName">${h.brand}</span></span>
+        </div>
+      `;
+    }
+    const cls = (h.badge && h.badge.includes("高")) ? "high" : "low";
+    return `
+      <div class="suggestItem" data-type="${h.type}" data-brand="${h.brand}">
+        <span class="suggestBadge ${cls}">${h.badge}</span>
+        <span class="brandNameWrap"><span class="brandName">${h.brand}</span></span>
+      </div>
+    `;
+  }).join("");
+
+  el.suggestBox.classList.remove("hidden");
+}
+
+/* 候補クリック（blur先行対策） */
+el.suggestGrid.addEventListener("pointerdown", (e)=>{
+  const node = e.target.closest(".suggestItem");
+  if(!node) return;
+  e.preventDefault();
+
+  const type = node.dataset.type;
+  const b = node.dataset.brand;
+
+  if(type==="visible"){
+    const target = document.querySelector(`.brandItem[data-brand="${CSS.escape(b)}"] input[name="brandPick"]`);
+    if(target){
+      target.checked = true;
+      target.dispatchEvent(new Event("change", {bubbles:true}));
+    }
+    return;
+  }
+
+  const hit = UNKNOWN_KEYS.find(x => x.label === b);
+
+  unknownBrand = b;
+  selectedBrand = "";
+  if(hit && hit.tier){
+    selectedTier = hit.tier;
+  }
+
+  el.brandQuery.value = b;
+  hideSuggest();
+
+  renderSellButtons();
+  autoSetSellDefault();
+  renderResult();
+});
+
+el.brandQuery.addEventListener("input", ()=>{
+  const trimmed = (el.brandQuery.value || "").trim();
+
+  filterBrandListByPrefix(trimmed);
+  renderSuggest(trimmed);
+
+  const exact = exactVisibleBrand(trimmed);
+  if(exact){
+    const node = document.querySelector(`.brandItem[data-brand="${CSS.escape(exact)}"] input[name="brandPick"]`);
+    if(node){
+      node.checked = true;
+      node.dispatchEvent(new Event("change", {bubbles:true}));
+      return;
+    }
+  }
+
+  const ux = exactUnknownSuspect(trimmed);
+  if(ux){
+    unknownBrand = ux.label;
+    selectedBrand = "";
+    selectedTier = ux.tier || selectedTier;
+    renderSellButtons();
+    autoSetSellDefault();
+    renderResult();
+    return;
+  }
+
+  unknownBrand = trimmed;
+  renderResult();
+});
+
+el.brandQuery.addEventListener("blur", ()=>{
+  if(!(el.brandQuery.value||"").trim()){
+    hideSuggest();
+  }
+});
+
+function setSell(val){
+  el.sell.value = String(val);
+  el.sellGrid.querySelectorAll(".sellBtn").forEach(b=>{
+    b.classList.toggle("active", b.dataset.value === String(val));
+  });
+  renderResult();
+}
+function renderSellButtons(){
+  const tier = selectedTier || "general";
+  const steps = stepsForTier(tier);
+  el.sellGrid.innerHTML = steps.map(p=>`<div class="sellBtn" data-value="${p}">${p}円</div>`).join("");
+}
+el.sellGrid.addEventListener("click", (e)=>{
+  const btn = e.target.closest(".sellBtn");
+  if(!btn) return;
+  setSell(btn.dataset.value);
+});
+function autoSetSellDefault(){
+  const tier = selectedTier || "general";
+  const item = el.item.value;
+  const steps = stepsForTier(tier);
+  const baseB = BASE_B_SELL[tier][item];
+  // B基準を選択（見た目の初期選択用。ランク変更時は動かさない）
+  setSell(baseB);
+}
+
+function unknownNote(unknownStr){
+  const u = exactUnknownSuspect(unknownStr);
+  return u ? u.note : null;
+}
+
+function renderResult(){
+  const tier = selectedTier || "general";
+  const status = getStatus();
+  const damage = hasDamage();
+  const itemKey = el.item.value;
+  const itemLabel = ITEMS.find(x=>x[0]===itemKey)?.[1] || "-";
+  const sellRaw = (el.sell.value ?? "").trim();
+  const sellSelected = sellRaw==="" ? NaN : Number(sellRaw);
+
+  const steps = stepsForTier(tier);
+  let buyKey = sellSelected;
+
+  if(Number.isFinite(sellSelected)){
+    const idx0 = steps.indexOf(sellSelected);
+    const baseIdx = idx0 >= 0 ? idx0 : 0;
+    const rankShift = (RANK_SHIFT[status] ?? 0);
+    const damageShift = damage ? -1 : 0;
+    const idx1 = clampIndex(baseIdx + rankShift + damageShift, steps.length);
+    buyKey = steps[idx1];
+  }
+
+  const rangeText = TABLES[tier].prices[buyKey] || "—";
+  const buyText = buyTextFromRange(tier, status, rangeText);
+
+  el.buyInline.textContent = buyText;
+
+  const brandDisplay = unknownBrand
+    ? `（わからない時）${unknownBrand}`
+    : (tier==="general" ? "ノーブランド" : (selectedBrand || "未選択"));
+
+  el.summary.textContent = [
+    `選択：${TABLES[tier].name}`,
+    `ブランド：${brandDisplay}`,
+    `状態：${status}${damage ? "（悪い所あり）" : ""}`,
+    `アイテム：${itemLabel}`,
+    `売価：${Number.isFinite(sellSelected) ? sellSelected+"円" : "—"}`
+  ].join(" / ");
+
+  el.warn.innerHTML = "";
+  if(unknownBrand){
+    const note = unknownNote(unknownBrand);
+    el.warn.innerHTML = note
+      ? `<div class="warn">※ ${note}</div>`
+      : `<div class="warn">※ 入力ブランドは一覧外です。</div>`;
+  }
+}
+
+/* ここが今回の肝：見た目の切替だけ起きて checked が変わらない事故を潰す */
+function wireSegment(containerId, inputName){
+  const root = document.getElementById(containerId);
+  if(!root) return;
+  root.addEventListener("click", (e)=>{
+    const lab = e.target.closest(".segBtn");
+    if(!lab) return;
+    const input = lab.querySelector(`input[name="${inputName}"]`);
+    if(!input) return;
+    input.checked = true;               // 必ず checked を更新
+    input.dispatchEvent(new Event("change", {bubbles:true}));
+  });
+}
+
+function init(){
+  el.item.innerHTML = ITEMS.map(([k,l])=>`<option value="${k}">${l}</option>`).join("");
+
+  renderBrandLists();
+  renderSellButtons();
+  autoSetSellDefault();
+  renderResult();
+
+  wireSegment("segStatus", "status");
+  wireSegment("segDamage", "damage");
+
+  document.querySelectorAll('input[name="status"]').forEach(x=>{
+    x.addEventListener("change", ()=>{
+      // ランク変更で売価の選択は動かさない（見た目維持）
+      renderResult();
+    });
+  });
+  document.querySelectorAll('input[name="damage"]').forEach(x=>{
+    x.addEventListener("change", renderResult);
+  });
+  el.item.addEventListener("change", ()=>{
+    renderSellButtons();
+    autoSetSellDefault();
+    renderResult();
+  });
+}
+window.addEventListener('DOMContentLoaded', init);
+</script>
+
+<script>
+if ("serviceWorker" in navigator && (location.protocol === "http:" || location.protocol === "https:")) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(console.warn);
+  });
+}
+</script>
+
+</body>
+</html>
